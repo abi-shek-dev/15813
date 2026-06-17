@@ -16,9 +16,6 @@ export function useNotifications(filterType = null, page = 1) {
   const [viewedIds, setViewedIds] = useState(new Set());
   const [hasMorePages, setHasMorePages] = useState(false);
 
-  /**
-   * Sorts notifications by priority and timestamp
-   */
   const sortNotifications = useCallback((notifs) => {
     return [...notifs].sort((a, b) => {
       const priorityA = PRIORITY_ORDER[a.notification_type] ?? 999;
@@ -63,9 +60,6 @@ export function useNotifications(filterType = null, page = 1) {
     loadNotifications();
   }, [page, filterType, sortNotifications]);
 
-  /**
-   * Mark a notification as viewed
-   */
   const markAsViewed = useCallback((notificationId) => {
     setViewedIds((prev) => new Set([...prev, notificationId]));
   }, []);

@@ -23,10 +23,8 @@ export function NotificationsPage() {
   const [filter, setFilter] = useState("All");
   const [page, setPage] = useState(1);
 
-  // Normalize filter: "All" means no filter
   const filterType = filter && filter !== "All" ? filter : null;
 
-  // Fetch notifications with current filter and page
   const {
     notifications,
     totalPages,
