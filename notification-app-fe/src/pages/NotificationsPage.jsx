@@ -15,7 +15,6 @@ import { NotificationCard } from "../components/NotificationCard";
 import { NotificationFilter } from "../components/NotificationFilter";
 import { useNotifications } from "../hooks/useNotifications";
 
-// Logging function signature: Log("frontend", level, packageName, message)
 const Log = (source, level, packageName, message) => {
   console.log(`[${source}/${packageName}] ${level}: ${message}`);
 };
@@ -47,7 +46,6 @@ export function NotificationsPage() {
   const handlePageChange = (_, newPage) => {
     Log("frontend", "INFO", "NotificationsPage", `page changed to: ${newPage}`);
     setPage(newPage);
-    // Scroll to top of page
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 

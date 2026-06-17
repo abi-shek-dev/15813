@@ -13,19 +13,6 @@ const TYPE_LABELS = {
   Event: "📅 Event",
 };
 
-/**
- * Displays a single notification card with type, title, message, and timestamp
- * Shows a visual indicator for unviewed notifications
- *
- * @param {Object} notification - Notification data
- * @param {string} notification.id - Unique identifier
- * @param {string} notification.title - Notification title
- * @param {string} notification.message - Notification message/body
- * @param {string} notification.notification_type - Type (Placement/Result/Event)
- * @param {string} notification.timestamp - ISO timestamp
- * @param {boolean} isViewed - Whether user has viewed this notification
- * @param {function} onView - Callback when notification is clicked
- */
 export function NotificationCard({ notification, isViewed, onView }) {
   const handleClick = () => {
     if (!isViewed && onView) {

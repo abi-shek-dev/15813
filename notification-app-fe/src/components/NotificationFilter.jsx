@@ -2,11 +2,6 @@ import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 
 const filters = ["All", "Placement", "Result", "Event"];
 
-/**
- * Filter toggle buttons for notification type filtering
- * @param {string} value - Currently selected filter
- * @param {function} onChange - Callback when filter changes
- */
 export function NotificationFilter({ value, onChange }) {
   const handleChange = (event, newValue) => {
     if (newValue !== null) {
