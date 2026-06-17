@@ -1,5 +1,4 @@
-import { Card, CardContent, Typography, Box, Chip, Stack } from "@mui/material";
-import DoneAllIcon from "@mui/icons-material/DoneAll";
+import "./components.css";
 
 const TYPE_COLORS = {
   Placement: "primary",
@@ -45,49 +44,36 @@ export function NotificationCard({ notification, isViewed, onView }) {
   const typeLabel = TYPE_LABELS[notification.notification_type] || notification.notification_type;
 
   return (
-    <Card
+    <div
+      className={`notification-card ${!isViewed ? "unviewed" : ""}`}
       onClick={handleClick}
-      sx={{
-        cursor: !isViewed ? "pointer" : "default",
-        backgroundColor: isViewed ? "background.paper" : "action.hover",
-        borderLeft: !isViewed ? "4px solid" : "none",
-        borderLeftColor: !isViewed ? "primary.main" : "transparent",
-        transition: "all 0.2s ease",
-        "&:hover": !isViewed
-          ? {
-              backgroundColor: "action.selected",
-              boxShadow: 2,
-            }
-          : {},
-      }}
     >
-      <CardContent sx={{ py: 2, "&:last-child": { pb: 2 } }}>
-        <Box display="flex" justifyContent="space-between" alignItems="flex-start" gap={1} mb={1}>
-          <Box flex={1}>
-            <Stack direction="row" spacing={1} alignItems="center" mb={0.5}>
-              <Chip label={typeLabel} size="small" color={typeColor} variant="outlined" />
-              {!isViewed && (
-                <DoneAllIcon
-                  sx={{ fontSize: 16, color: "primary.main" }}
-                  title="Unviewed notification"
-                />
-              )}
-            </Stack>
+      <div className="notification-card-header">
+        <div style={{ flex: 1 }}>
+          <div className="notification-badges">
+            <span className={`notification-chip ${typeColor}`}>
+              {typeLabel}
+            </span>
+            {!isViewed && (
+              <svg 
+                className="done-all-icon" 
+                viewBox="0 0 24 24" 
+                fill="currentColor"
+                title="Unviewed notification"
+              >
+                <path d="M18 7l-1.41-1.41-6.34 6.34 1.41 1.41L18 7zm4.24-1.41L11.66 16.17 7.48 12l-1.41 1.41L11.66 19l12-12-1.42-1.41zM.41 13.41L6 19l1.41-1.41L1.83 12 .41 13.41z"/>
+              </svg>
+            )}
+          </div>
 
-            <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 0.5 }}>
-              {notification.title}
-            </Typography>
+          <h3 className="notification-title">{notification.title}</h3>
+          <p className="notification-message">{notification.message}</p>
+        </div>
+      </div>
 
-            <Typography variant="body2" color="text.secondary">
-              {notification.message}
-            </Typography>
-          </Box>
-        </Box>
-
-        <Typography variant="caption" color="text.disabled" sx={{ display: "block", mt: 1 }}>
-          {formatTime(notification.timestamp)}
-        </Typography>
-      </CardContent>
-    </Card>
+      <span className="notification-time">
+        {formatTime(notification.timestamp)}
+      </span>
+    </div>
   );
 }
