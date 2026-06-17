@@ -1,3 +1,5 @@
+import { Log } from "../utils/logger";
+
 const API_BASE_URL = "http://4.224.186.213/evaluation-service";
 const API_TOKEN = import.meta.env.VITE_API_TOKEN || "";
 
@@ -22,7 +24,7 @@ export async function fetchNotifications(page = 1, limit = 10, notificationType 
       params.append("notification_type", notificationType);
     }
 
-    console.log("📤 API Request:", {
+    Log("frontend", "INFO", "notifications.api", "Sending API request", {
       url: `${API_BASE_URL}/notifications?${params.toString()}`,
       tokenLength: API_TOKEN.length,
       hasToken: !!API_TOKEN,
@@ -45,7 +47,7 @@ export async function fetchNotifications(page = 1, limit = 10, notificationType 
 
     const data = await response.json();
 
-    console.log("📥 API Response:", {
+    Log("frontend", "INFO", "notifications.api", "Received API response", {
       notificationsCount: data.notifications?.length,
       total: data.total,
       page: data.page,
@@ -68,7 +70,9 @@ export async function fetchNotifications(page = 1, limit = 10, notificationType 
       hasMorePages,
     };
   } catch (error) {
-    console.error("Failed to fetch notifications:", error);
+    Log("frontend", "ERROR", "notifications.api", "Failed to fetch notifications", {
+      error: error?.message || error,
+    });
     throw error;
   }
 }

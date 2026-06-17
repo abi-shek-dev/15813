@@ -2,11 +2,8 @@ import { useState } from "react";
 import { NotificationCard } from "../components/NotificationCard";
 import { NotificationFilter } from "../components/NotificationFilter";
 import { useNotifications } from "../hooks/useNotifications";
+import { Log } from "../utils/logger";
 import "./NotificationsPage.css";
-
-const Log = (source, level, packageName, message) => {
-  console.log(`[${source}/${packageName}] ${level}: ${message}`);
-};
 
 export function NotificationsPage() {
   const [filter, setFilter] = useState("All");

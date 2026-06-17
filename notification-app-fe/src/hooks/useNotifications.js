@@ -1,9 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { fetchNotifications } from "../api/notifications";
-
-const Log = (source, level, packageName, message) => {
-  console.log(`[${source}/${packageName}] ${level}: ${message}`);
-};
+import { Log } from "../utils/logger";
 
 const ITEMS_PER_PAGE = 10;
 const PRIORITY_ORDER = { Placement: 0, Result: 1, Event: 2 };

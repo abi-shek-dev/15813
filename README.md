@@ -13,4 +13,4 @@ If you want to test it out on your machine, just follow these steps:
 2. Then, you can start the local development server with: `npm run dev`
 3. If you need to build it for production, use: `npm run build`
 
-Note: The logging-middleware and notification-app-be is empty because i used only Frontend 
+Note: The notification-app-be is empty because i used only Frontend 
