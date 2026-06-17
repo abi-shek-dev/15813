@@ -16,11 +16,13 @@ const PRIORITY_ORDER = { Placement: 0, Result: 1, Event: 2 };
  * @returns {Object} Notifications state and controls
  */
 export function useNotifications(filterType = null, page = 1) {
+  // All hooks must be called in the same order every render
   const [notifications, setNotifications] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [viewedIds, setViewedIds] = useState(new Set());
+  const [hasMorePages, setHasMorePages] = useState(false);
 
   /**
    * Sorts notifications by priority and timestamp
@@ -44,53 +46,37 @@ export function useNotifications(filterType = null, page = 1) {
   }, []);
 
   /**
-   * Load notifications from API
-   */
-  const loadNotifications = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      Log("frontend", "INFO", "useNotifications", "API request started");
-
-      const data = await fetchNotifications(page, ITEMS_PER_PAGE, filterType);
-
-      Log("frontend", "INFO", "useNotifications", "API request success");
-
-      const sortedNotifications = sortNotifications(data.notifications);
-      setNotifications(sortedNotifications);
-      setTotal(data.total);
-    } catch (err) {
-      const errorMessage = err?.message || "Unknown error";
-      Log("frontend", "ERROR", "useNotifications", `API request failure: ${errorMessage}`);
-      setError(errorMessage);
-      setNotifications([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [page, filterType, sortNotifications]);
-
-  /**
-   * Log when filter changes
-   */
-  useEffect(() => {
-    Log("frontend", "INFO", "useNotifications", `filter changed: ${filterType || "All"}`);
-  }, [filterType]);
-
-  /**
-   * Log when page changes
-   */
-  useEffect(() => {
-    Log("frontend", "INFO", "useNotifications", `page changed: ${page}`);
-  }, [page]);
-
-  /**
    * Load notifications when page or filter changes
-   * Fixed: Removed notifications from dependency array to prevent infinite loop
+   * Uses direct dependencies to avoid circular dependency issues
    */
   useEffect(() => {
+    const loadNotifications = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        Log("frontend", "INFO", "useNotifications", "API request started");
+
+        const data = await fetchNotifications(page, ITEMS_PER_PAGE, filterType);
+
+        Log("frontend", "INFO", "useNotifications", "API request success");
+
+        const sortedNotifications = sortNotifications(data.notifications);
+        setNotifications(sortedNotifications);
+        setTotal(data.total);
+        setHasMorePages(data.hasMorePages || false);
+      } catch (err) {
+        const errorMessage = err?.message || "Unknown error";
+        Log("frontend", "ERROR", "useNotifications", `API request failure: ${errorMessage}`);
+        setError(errorMessage);
+        setNotifications([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     loadNotifications();
-  }, [page, filterType, loadNotifications]);
+  }, [page, filterType, sortNotifications]);
 
   /**
    * Mark a notification as viewed
@@ -106,8 +92,32 @@ export function useNotifications(filterType = null, page = 1) {
 
   /**
    * Calculate total pages
+   * If backend didn't provide total, use hasMorePages flag for open-ended pagination
    */
-  const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
+  const totalPages = total > 0 ? Math.ceil(total / ITEMS_PER_PAGE) : (hasMorePages ? page + 1 : page);
+
+  /**
+   * Refetch function exposed to parent components
+   */
+  const refetch = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      Log("frontend", "INFO", "useNotifications", "Manual refetch started");
+      const data = await fetchNotifications(page, ITEMS_PER_PAGE, filterType);
+      const sortedNotifications = sortNotifications(data.notifications);
+      setNotifications(sortedNotifications);
+      setTotal(data.total);
+      setHasMorePages(data.hasMorePages || false);
+    } catch (err) {
+      const errorMessage = err?.message || "Unknown error";
+      Log("frontend", "ERROR", "useNotifications", `Refetch failure: ${errorMessage}`);
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  }, [page, filterType, sortNotifications]);
 
   return {
     notifications,
@@ -118,6 +128,7 @@ export function useNotifications(filterType = null, page = 1) {
     viewedIds,
     unreadCount,
     markAsViewed,
-    refetch: loadNotifications,
+    refetch,
+    hasMorePages,
   };
 }
