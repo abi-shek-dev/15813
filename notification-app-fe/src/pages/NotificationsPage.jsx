@@ -1,19 +1,8 @@
 import { useState } from "react";
-import {
-  Alert,
-  Badge,
-  Box,
-  CircularProgress,
-  Divider,
-  Pagination,
-  Stack,
-  Typography,
-} from "@mui/material";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-
 import { NotificationCard } from "../components/NotificationCard";
 import { NotificationFilter } from "../components/NotificationFilter";
 import { useNotifications } from "../hooks/useNotifications";
+import "./NotificationsPage.css";
 
 const Log = (source, level, packageName, message) => {
   console.log(`[${source}/${packageName}] ${level}: ${message}`);
@@ -41,7 +30,8 @@ export function NotificationsPage() {
     setPage(1); 
   };
 
-  const handlePageChange = (_, newPage) => {
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || newPage > totalPages) return;
     Log("frontend", "INFO", "NotificationsPage", `page changed to: ${newPage}`);
     setPage(newPage);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -53,48 +43,54 @@ export function NotificationsPage() {
   };
 
   return (
-    <Box sx={{ maxWidth: 720, mx: "auto", px: 2, py: 4 }}>
+    <div className="notifications-page">
       {/* Header with notification count */}
-      <Stack direction="row" alignItems="center" spacing={1.5} mb={3}>
-        <Badge badgeContent={unreadCount} color="primary" max={99} overlap="circular">
-          <NotificationsIcon sx={{ fontSize: 28 }} />
-        </Badge>
-        <Typography variant="h5" fontWeight={700}>
-          Notifications
-        </Typography>
-      </Stack>
+      <div className="notifications-header">
+        <div className="notifications-icon-wrapper">
+          {/* Simple SVG bell icon replacing MUI NotificationsIcon */}
+          <svg className="notifications-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
+          </svg>
+          {unreadCount > 0 && (
+            <span className="notifications-badge">
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </span>
+          )}
+        </div>
+        <h1 className="notifications-title">Notifications</h1>
+      </div>
 
-      <Divider sx={{ mb: 3 }} />
+      <hr className="notifications-divider" />
 
       {/* Filter section */}
-      <Box sx={{ marginBottom: 3 }}>
+      <div className="notifications-filter-container">
         <NotificationFilter value={filter} onChange={handleFilterChange} />
-      </Box>
+      </div>
 
       {/* Loading state */}
       {loading && (
-        <Box display="flex" justifyContent="center" py={6}>
-          <CircularProgress />
-        </Box>
+        <div className="notifications-loading">
+          <div className="spinner"></div>
+        </div>
       )}
 
       {/* Error state */}
       {!loading && error && (
-        <Alert severity="error">
+        <div className="notifications-alert notifications-alert-error">
           Failed to load notifications: {error}
-        </Alert>
+        </div>
       )}
 
       {/* Empty state */}
       {!loading && !error && notifications.length === 0 && (
-        <Alert severity="info">
+        <div className="notifications-alert notifications-alert-info">
           No notifications {filter && filter !== "All" ? `of type "${filter}"` : ""}
-        </Alert>
+        </div>
       )}
 
       {/* Notifications list */}
       {!loading && !error && notifications.length > 0 && (
-        <Stack spacing={1.5}>
+        <div className="notifications-list">
           {notifications.map((notification) => (
             <NotificationCard
               key={notification.id}
@@ -103,21 +99,23 @@ export function NotificationsPage() {
               onView={handleMarkViewed}
             />
           ))}
-        </Stack>
+        </div>
       )}
 
       {/* Pagination */}
       {!loading && !error && notifications.length > 0 && totalPages > 1 && (
-        <Box display="flex" justifyContent="center" mt={4}>
-          <Pagination
-            count={totalPages}
-            page={page}
-            onChange={handlePageChange}
-            color="primary"
-            shape="rounded"
-          />
-        </Box>
+        <div className="notifications-pagination">
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+            <button
+              key={p}
+              className={`pagination-btn ${p === page ? "active" : ""}`}
+              onClick={() => handlePageChange(p)}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
       )}
-    </Box>
+    </div>
   );
 }
