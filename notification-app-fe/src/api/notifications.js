@@ -63,16 +63,33 @@ export async function fetchNotifications(page = 1, limit = 10, notificationType 
 
     const data = await response.json();
 
+    console.log("📥 API Response:", {
+      notificationsCount: data.notifications?.length,
+      total: data.total,
+      page: data.page,
+      limit: data.limit,
+      hasTotal: !!data.total,
+    });
+
     // Normalize field names from API response
     const normalizedNotifications = Array.isArray(data.notifications)
       ? data.notifications.map(normalizeNotification)
       : [];
 
+    /**
+     * Handle pagination when backend doesn't return metadata:
+     * If no total is provided and we got less than requested, assume no more pages
+     * Otherwise, assume there might be more pages (open-ended pagination)
+     */
+    const hasMorePages = normalizedNotifications.length >= limit;
+    const calculatedTotal = data.total || (hasMorePages ? (page * limit) + 1 : page * limit);
+
     return {
       notifications: normalizedNotifications,
-      total: data.total || normalizedNotifications.length,
+      total: calculatedTotal,
       page: data.page || page,
       limit: data.limit || limit,
+      hasMorePages,
     };
   } catch (error) {
     console.error("Failed to fetch notifications:", error);
